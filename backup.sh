@@ -1,9 +1,20 @@
 #!/bin/sh
 set -e
 
-REMOTE_HOST="10.18.19.2"
-REMOTE_PATH="/mnt/user/backups/zbox"
+# Load configuration file if available. The default location
+# can be overridden via the CONFIG_FILE environment variable.
+CONFIG_FILE="${CONFIG_FILE:-/config/backup.conf}"
+if [ -f "$CONFIG_FILE" ]; then
+  # shellcheck source=/dev/null
+  . "$CONFIG_FILE"
+fi
+
 SOURCE="/data/source/"
+
+# Ensure required variables are defined.
+: "${REMOTE_HOST:?Missing REMOTE_HOST}"
+: "${REMOTE_PATH:?Missing REMOTE_PATH}"
+
 DEST="root@${REMOTE_HOST}:${REMOTE_PATH}"
 
 printf '%s - Validating SSH connectivity to %s...\n' "$(date)" "$REMOTE_HOST"

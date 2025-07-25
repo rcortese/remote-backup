@@ -6,3 +6,4 @@ services:
     volumes:
       - ./data/source:/data/source:ro
       - ${HOME}/.ssh:/root/.ssh:ro
+      - ./backup.conf:/config/backup.conf:ro
