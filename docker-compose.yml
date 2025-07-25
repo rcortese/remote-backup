@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  backup:
+    build: .
+    container_name: remote-backup
+    volumes:
+      - ./data/source:/data/source:ro
+      - ${HOME}/.ssh:/root/.ssh:ro
