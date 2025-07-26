@@ -1,32 +1,42 @@
 # Remote Backup Container
 
- Este reposit\u00f3rio fornece uma imagem Docker leve baseada em Alpine que executa um backup di\u00e1rio. Cada subpasta de `/data/source` \u00e9 compactada em um arquivo `tar.gz` datado e transferida via `rsync`. O destino pode manter um n\u00famero configur\u00e1vel de arquivos por subpasta, removendo os mais antigos quando `BACKUP_KEEP` for maior que zero. O padr\u00e3o \u00e9 `0`, indicando que n\u00e3o h\u00e1 limite e nada \u00e9 apagado.
+This repository provides a lightweight Docker image based on Alpine that performs a daily backup. Each subfolder under `/data/source` is compressed into a dated `tar.gz` archive and transferred using `rsync`. The destination can retain a configurable number of archives per subfolder, deleting the oldest ones when `BACKUP_KEEP` is greater than zero. The default is `0`, meaning no limit and nothing is removed.
 
-## Estrutura do projeto
+## Project structure
 
-- **Dockerfile** - Constr\u00f3i a imagem com `rsync` e `openssh-client`, copia o script de backup e o entrypoint que configura o `cron`.
-- **backup.sh** - Script que valida a conex\u00e7\u00e3o SSH, compacta cada subpasta e transfere os arquivos usando `rsync`,
-  lendo as vari\u00e1veis definidas em `backup.conf`.
-- **entrypoint.sh** - Configura o `cron` usando a vari\u00e1vel `CRON_SCHEDULE` e inicia o servi\u00e7o.
-- **docker-compose.yml** - Facilita a cria\u00e7\u00e3o do container e o mapeamento de volumes.
-- **backup.conf** - Arquivo de configura\u00e7\u00e3o com as vari\u00e1veis de ambiente utilizadas pelo `backup.sh`.
+- **Dockerfile** - Builds the image with `rsync` and `openssh-client`, copies the backup script and the entrypoint that sets up `cron`.
+- **backup.sh** - Script that validates the SSH connection, compresses each subfolder and transfers the files with `rsync`, reading the variables defined in `backup.conf`.
+- **entrypoint.sh** - Configures `cron` using the `CRON_SCHEDULE` variable and starts the service.
+- **docker-compose.yml** - Helps create the container and map volumes.
+- **backup.conf** - Configuration file with the environment variables used by `backup.sh`.
 
-## Uso r\u00e1pido
+## Quick start
 
-1. Copie os dados que deseja sincronizar para `./data/source`.
-2. Ajuste o arquivo `backup.conf` com o host, usu\u00e1rio e caminho remotos desejados.
-3. Coloque uma chave privada SSH dentro da pasta `./.ssh` (por exemplo `id_rsa` ou `id_ed25519`) com acesso ao host de destino.
-4. Construa e inicialize o container:
+1. Copy the data you wish to synchronize to `./data/source`.
+2. Adjust `backup.conf` with the desired remote host, user and path.
+3. Place an SSH private key inside `./.ssh` (for example `id_rsa` or `id_ed25519`) with access to the target host.
+4. Build and start the container:
 
    ```bash
    docker compose up --build -d
    ```
 
-O container executar\u00e1 diariamente o `backup.sh`, que compacta cada subpasta e envia os arquivos ao destino, registrando a sa\u00edda no console.
+The container will execute `backup.sh` daily, which compresses each subfolder and sends the files to the destination while logging its output to the console.
 
-## Personaliza\u00e7\u00e3o
+## Customization
 
-Edite o arquivo `backup.conf` para definir as vari\u00e1veis `REMOTE_HOST`, `REMOTE_PATH` e opcionalmente `REMOTE_USER`, al\u00e9m de `BACKUP_KEEP` caso deseje alterar a quantidade de arquivos preservados por subpasta. O valor padr\u00e3o \u00e9 `0`, indicando que n\u00e3o h\u00e1 limite. A vari\u00e1vel `REMOTE_USER` assume `root` quando n\u00e3o definida. Os valores do reposit\u00f3rio s\u00e3o apenas exemplos. O arquivo \u00e9 montado no container e lido automaticamente pelo `backup.sh` a cada execu\u00e7\u00e3o.
+Edit `backup.conf` to define the variables `REMOTE_HOST`, `REMOTE_PATH` and optionally `REMOTE_USER`, as well as `BACKUP_KEEP` if you want to change how many archives are retained per subfolder. The default value is `0`, meaning unlimited retention. `REMOTE_USER` defaults to `root` when not set. The values in the repository are examples only. The file is mounted in the container and automatically read by `backup.sh` during each run.
 
-Tamb\u00e9m \u00e9 poss\u00edvel ajustar a frequ\u00eancia de execu\u00e7\u00e3o definindo a vari\u00e1vel de ambiente `CRON_SCHEDULE`. O padr\u00e3o \u00e9 `0 3 * * *`, que significa diariamente \u00e0s 3h da manh\u00e3. Essa vari\u00e1vel pode ser alterada no `docker-compose.yml` ou no momento de iniciar o container.
+You can also adjust how often the backup runs by setting the `CRON_SCHEDULE` environment variable. The default is `0 3 * * *`, which means daily at 3 a.m. This variable can be changed in `docker-compose.yml` or when starting the container.
 
+## Configuration variables
+
+The following variables can be defined in `backup.conf` or as environment variables:
+
+- `REMOTE_HOST` – Hostname or IP of the destination server.
+- `REMOTE_PATH` – Target directory on the remote server.
+- `REMOTE_USER` – Remote user used for SSH (default: `root`).
+- `BACKUP_KEEP` – Number of archives to keep for each subfolder. Use `0` for unlimited retention.
+- `SSH_KEY_FILE` – Path to the SSH private key to use. If not set, the script searches `/root/.ssh` for the first available key.
+- `CONFIG_FILE` – Path to an alternative configuration file (default: `/config/backup.conf`).
+- `CRON_SCHEDULE` – Cron expression controlling when the backup runs (default: `0 3 * * *`).
