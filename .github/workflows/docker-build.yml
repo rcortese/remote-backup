@@ -28,12 +28,14 @@ jobs:
             -e SSH_ENABLE_ROOT=true \
             quay.io/panubo/sshd:1.9.0
           sleep 5
+          ssh-keyscan -H sshd > known_hosts
 
       - name: Run backup script in container
         run: |
           docker run --rm --network backup-net \
             -v $(pwd)/test-source:/data/source \
             -v $(pwd)/id_rsa:/root/.ssh/id_rsa:ro \
+            -v $(pwd)/known_hosts:/root/.ssh/known_hosts:ro \
             -e REMOTE_HOST=sshd \
             -e REMOTE_PATH=/data/dest \
             -e REMOTE_USER=root \
@@ -45,4 +47,4 @@ jobs:
         run: |
           docker rm -f sshd || true
           docker network rm backup-net || true
-          rm -rf test-source dest id_rsa id_rsa.pub
+          rm -rf test-source dest id_rsa id_rsa.pub known_hosts
