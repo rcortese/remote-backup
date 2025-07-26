@@ -4,6 +4,6 @@ services:
     build: .
     container_name: remote-backup
     volumes:
-      - ./data/source:/data/source:ro
-      - ${HOME}/.ssh:/root/.ssh:ro
+      - ${HOME}:/data/source:ro
+      - ./.ssh:/root/.ssh:ro
       - ./backup.conf:/config/backup.conf:ro
