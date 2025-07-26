@@ -1,5 +1,9 @@
 #!/bin/sh
-set -e
+# Enable strict mode; enable pipefail if supported
+set -eu
+if (set -o | grep -q pipefail 2>/dev/null); then
+  eval 'set -o pipefail'
+fi
 
 # Load configuration file if available. The default location
 # can be overridden via the CONFIG_FILE environment variable.
@@ -60,6 +64,6 @@ for dir in "$SOURCE"/*; do
   if [ "$BACKUP_KEEP" -gt 0 ]; then
     printf '%s - Pruning old backups for %s, keeping %s files...\n' "$(date)" "$base" "$BACKUP_KEEP"
     ssh -i "$SSH_KEY_FILE" "${REMOTE_USER}@${REMOTE_HOST}" \
-      "cd \"${REMOTE_PATH}\" && ls -1 ${base}_*.tar.gz 2>/dev/null | sort | head -n -${BACKUP_KEEP} | xargs -r rm -f"
+      "cd \"${REMOTE_PATH}\" && ls -1 \"${base}\"_*.tar.gz 2>/dev/null | sort | head -n -${BACKUP_KEEP} | xargs -r rm -f"
   fi
 done
