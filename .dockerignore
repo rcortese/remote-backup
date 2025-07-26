@@ -1,0 +1,25 @@
+# Exclude git version control directories and files
+.git
+.gitignore
+.github
+
+# Exclude SSH keys or configuration
+.ssh
+
+# Exclude local data directories
+data/
+
+# Exclude common local development artifacts
+*.log
+*.tmp
+*~
+__pycache__/
+*.pyc
+*.swp
+
+# Exclude editor and IDE settings
+.vscode/
+.idea/
+
+# Exclude Docker compose override files
+docker-compose.override.yml
