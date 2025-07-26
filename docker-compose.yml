@@ -3,6 +3,8 @@ services:
   backup:
     build: .
     container_name: remote-backup
+    environment:
+      CRON_SCHEDULE: ${CRON_SCHEDULE:-"0 3 * * *"}
     volumes:
       - ${HOME}:/data/source:ro
       - ./.ssh:/root/.ssh:ro
