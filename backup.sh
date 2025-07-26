@@ -9,7 +9,7 @@ if [ -f "$CONFIG_FILE" ]; then
   . "$CONFIG_FILE"
 fi
 
-SOURCE="/data/source/"
+SOURCE="/data/source"
 
 # Ensure required variables are defined.
 : "${REMOTE_HOST:?Missing REMOTE_HOST}"
@@ -33,5 +33,18 @@ if ! ssh -i "$SSH_KEY_FILE" -o BatchMode=yes -o ConnectTimeout=10 root@${REMOTE_
   exit 1
 fi
 
-printf '%s - Starting rsync...\n' "$(date)"
-rsync -avz --delete -e "ssh -i ${SSH_KEY_FILE}" "$SOURCE" "$DEST"
+printf '%s - Ensuring remote directory %s exists...\n' "$(date)" "$REMOTE_PATH"
+ssh -i "$SSH_KEY_FILE" root@${REMOTE_HOST} "mkdir -p \"${REMOTE_PATH}\""
+
+TMP_DIR=$(mktemp -d)
+trap 'rm -rf "$TMP_DIR"' EXIT
+
+for dir in "$SOURCE"/*; do
+  [ -d "$dir" ] || continue
+  base=$(basename "$dir")
+  archive="${TMP_DIR}/${base}_$(date +%Y%m%d).tar.gz"
+  printf '%s - Creating archive %s...\n' "$(date)" "$archive"
+  tar -czf "$archive" -C "$SOURCE" "$base"
+  printf '%s - Transferring %s to %s...\n' "$(date)" "$archive" "$DEST/"
+  rsync -avz -e "ssh -i ${SSH_KEY_FILE}" "$archive" "$DEST/"
+done
