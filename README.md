@@ -1,10 +1,10 @@
 # Remote Backup Container
 
-This repository provides a lightweight Docker image based on Alpine that performs a daily backup. Each subfolder under `/data/source` is compressed into a dated `tar.gz` archive and transferred using `rsync`. The destination can retain a configurable number of archives per subfolder, deleting the oldest ones when `BACKUP_KEEP` is greater than zero. The default is `0`, meaning no limit and nothing is removed.
+This repository provides a lightweight Docker image based on **Alpine 3.22.1** that performs a daily backup. Each subfolder under `/data/source` is compressed into a dated `tar.gz` archive and transferred using `rsync`. The destination can retain a configurable number of archives per subfolder, deleting the oldest ones when `BACKUP_KEEP` is greater than zero. The default is `0`, meaning no limit and nothing is removed.
 
 ## Project structure
 
-- **Dockerfile** - Builds the image with `rsync` and `openssh-client`, copies the backup script and the entrypoint that sets up `cron`.
+- **Dockerfile** - Builds the image from `alpine:3.22.1` with `rsync` and `openssh-client`, copies the backup script and the entrypoint that sets up `cron`.
 - **backup.sh** - Script that validates the SSH connection, compresses each subfolder and transfers the files with `rsync`, reading the variables defined in `backup.conf`.
 - **entrypoint.sh** - Configures `cron` using the `CRON_SCHEDULE` variable and starts the service.
 - **docker-compose.yml** - Helps create the container and map volumes.
