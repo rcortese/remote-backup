@@ -17,7 +17,7 @@ O backup copia o conteudo de `/data/source` para um servidor remoto configurado 
 
 1. Copie os dados que deseja sincronizar para `./data/source`.
 2. Ajuste o arquivo `backup.conf` com o host e caminho remotos desejados.
-3. Certifique-se de possuir uma chave SSH em `~/.ssh/id_ed25519` com acesso ao host de destino.
+3. Coloque uma chave privada SSH dentro da pasta `./.ssh` (por exemplo `id_rsa` ou `id_ed25519`) com acesso ao host de destino.
 4. Construa e inicialize o container:
 
    ```bash
