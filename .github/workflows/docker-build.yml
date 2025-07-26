@@ -1,0 +1,48 @@
+name: Docker Build
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: docker build -t remote-backup .
+
+      - name: Prepare test environment
+        run: |
+          mkdir -p test-source/data
+          echo "hello" > test-source/data/file.txt
+          mkdir dest
+          ssh-keygen -q -t rsa -N '' -f id_rsa
+          docker network create backup-net
+          docker run -d --name sshd --network backup-net \
+            -v $(pwd)/id_rsa.pub:/root/.ssh/authorized_keys:ro \
+            -v $(pwd)/dest:/data/dest \
+            -e SSH_ENABLE_ROOT=true \
+            quay.io/panubo/sshd:1.9.0
+          sleep 5
+
+      - name: Run backup script in container
+        run: |
+          docker run --rm --network backup-net \
+            -v $(pwd)/test-source:/data/source \
+            -v $(pwd)/id_rsa:/root/.ssh/id_rsa:ro \
+            -e REMOTE_HOST=sshd \
+            -e REMOTE_PATH=/data/dest \
+            -e REMOTE_USER=root \
+            -e BACKUP_KEEP=0 \
+            remote-backup /usr/local/bin/backup.sh
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker rm -f sshd || true
+          docker network rm backup-net || true
+          rm -rf test-source dest id_rsa id_rsa.pub
