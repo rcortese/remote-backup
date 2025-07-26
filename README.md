@@ -1,6 +1,6 @@
 # Remote Backup Container
 
-Este reposit\u00f3rio fornece uma imagem Docker leve baseada em Alpine que executa um backup di\u00e1rio. Cada subpasta de `/data/source` é compactada em um arquivo `tar.gz` datado e transferida via `rsync`.
+ Este reposit\u00f3rio fornece uma imagem Docker leve baseada em Alpine que executa um backup di\u00e1rio. Cada subpasta de `/data/source` \u00e9 compactada em um arquivo `tar.gz` datado e transferida via `rsync`. O destino pode manter um n\u00famero configur\u00e1vel de arquivos por subpasta, removendo os mais antigos quando `BACKUP_KEEP` for maior que zero. O padr\u00e3o \u00e9 `0`, indicando que n\u00e3o h\u00e1 limite e nada \u00e9 apagado.
 
 ## Estrutura do projeto
 
@@ -26,5 +26,5 @@ O container executar\u00e1 diariamente o `backup.sh`, que compacta cada subpasta
 
 ## Personaliza\u00e7\u00e3o
 
-Edite o arquivo `backup.conf` para definir as variaveis `REMOTE_HOST` e `REMOTE_PATH` conforme seu ambiente. Os valores do repositorio sao apenas exemplos. O arquivo e montado no container e lido automaticamente pelo `backup.sh` a cada execucao.
+Edite o arquivo `backup.conf` para definir as vari\u00e1veis `REMOTE_HOST` e `REMOTE_PATH`, al\u00e9m de `BACKUP_KEEP` caso deseje alterar a quantidade de arquivos preservados por subpasta. O valor padr\u00e3o \u00e9 `0`, indicando que n\u00e3o h\u00e1 limite. Os valores do reposit\u00f3rio s\u00e3o apenas exemplos. O arquivo \u00e9 montado no container e lido automaticamente pelo `backup.sh` a cada execu\u00e7\u00e3o.
 
