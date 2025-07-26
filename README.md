@@ -14,7 +14,7 @@
 ## Uso r\u00e1pido
 
 1. Copie os dados que deseja sincronizar para `./data/source`.
-2. Ajuste o arquivo `backup.conf` com o host e caminho remotos desejados.
+2. Ajuste o arquivo `backup.conf` com o host, usu\u00e1rio e caminho remotos desejados.
 3. Coloque uma chave privada SSH dentro da pasta `./.ssh` (por exemplo `id_rsa` ou `id_ed25519`) com acesso ao host de destino.
 4. Construa e inicialize o container:
 
@@ -26,5 +26,5 @@ O container executar\u00e1 diariamente o `backup.sh`, que compacta cada subpasta
 
 ## Personaliza\u00e7\u00e3o
 
-Edite o arquivo `backup.conf` para definir as vari\u00e1veis `REMOTE_HOST` e `REMOTE_PATH`, al\u00e9m de `BACKUP_KEEP` caso deseje alterar a quantidade de arquivos preservados por subpasta. O valor padr\u00e3o \u00e9 `0`, indicando que n\u00e3o h\u00e1 limite. Os valores do reposit\u00f3rio s\u00e3o apenas exemplos. O arquivo \u00e9 montado no container e lido automaticamente pelo `backup.sh` a cada execu\u00e7\u00e3o.
+Edite o arquivo `backup.conf` para definir as vari\u00e1veis `REMOTE_HOST`, `REMOTE_PATH` e opcionalmente `REMOTE_USER`, al\u00e9m de `BACKUP_KEEP` caso deseje alterar a quantidade de arquivos preservados por subpasta. O valor padr\u00e3o \u00e9 `0`, indicando que n\u00e3o h\u00e1 limite. A vari\u00e1vel `REMOTE_USER` assume `root` quando n\u00e3o definida. Os valores do reposit\u00f3rio s\u00e3o apenas exemplos. O arquivo \u00e9 montado no container e lido automaticamente pelo `backup.sh` a cada execu\u00e7\u00e3o.
 

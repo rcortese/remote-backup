@@ -11,11 +11,14 @@ fi
 
 SOURCE="/data/source"
 
+# Remote user for SSH connections. Defaults to root when not defined.
+REMOTE_USER="${REMOTE_USER:-root}"
+
 # Ensure required variables are defined.
 : "${REMOTE_HOST:?Missing REMOTE_HOST}"
 : "${REMOTE_PATH:?Missing REMOTE_PATH}"
 
-DEST="root@${REMOTE_HOST}:${REMOTE_PATH}"
+DEST="${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}"
 
 # Number of backups to keep per subfolder. Older archives will be
 # deleted after each new backup when this value is greater than zero.
@@ -34,13 +37,13 @@ if [ ! -f "$SSH_KEY_FILE" ]; then
 fi
 
 printf '%s - Validating SSH connectivity to %s using %s...\n' "$(date)" "$REMOTE_HOST" "$SSH_KEY_FILE"
-if ! ssh -i "$SSH_KEY_FILE" -o BatchMode=yes -o ConnectTimeout=10 "root@${REMOTE_HOST}" true; then
+if ! ssh -i "$SSH_KEY_FILE" -o BatchMode=yes -o ConnectTimeout=10 "${REMOTE_USER}@${REMOTE_HOST}" true; then
   printf '%s - ERROR: Unable to connect to %s via SSH.\n' "$(date)" "$REMOTE_HOST" >&2
   exit 1
 fi
 
 printf '%s - Ensuring remote directory %s exists...\n' "$(date)" "$REMOTE_PATH"
-ssh -i "$SSH_KEY_FILE" "root@${REMOTE_HOST}" "mkdir -p \"${REMOTE_PATH}\""
+ssh -i "$SSH_KEY_FILE" "${REMOTE_USER}@${REMOTE_HOST}" "mkdir -p \"${REMOTE_PATH}\""
 
 TMP_DIR=$(mktemp -d)
 trap 'rm -rf "$TMP_DIR"' EXIT
@@ -56,7 +59,7 @@ for dir in "$SOURCE"/*; do
 
   if [ "$BACKUP_KEEP" -gt 0 ]; then
     printf '%s - Pruning old backups for %s, keeping %s files...\n' "$(date)" "$base" "$BACKUP_KEEP"
-    ssh -i "$SSH_KEY_FILE" "root@${REMOTE_HOST}" \
+    ssh -i "$SSH_KEY_FILE" "${REMOTE_USER}@${REMOTE_HOST}" \
       "cd \"${REMOTE_PATH}\" && ls -1 ${base}_*.tar.gz 2>/dev/null | sort | head -n -${BACKUP_KEEP} | xargs -r rm -f"
   fi
 done
