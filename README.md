@@ -1,13 +1,11 @@
 # Remote Backup Container
 
-Este reposit\u00f3rio fornece uma imagem Docker leve baseada em Alpine que executa um backup di\u00e1rio via `rsync`.
-
-O backup copia o conteudo de `/data/source` para um servidor remoto configurado pelo usuario usando a chave SSH do host.
+Este reposit\u00f3rio fornece uma imagem Docker leve baseada em Alpine que executa um backup di\u00e1rio. Cada subpasta de `/data/source` é compactada em um arquivo `tar.gz` datado e transferida via `rsync`.
 
 ## Estrutura do projeto
 
 - **Dockerfile** - Constr\u00f3i a imagem com `rsync` e `openssh-client`, copia o script de backup e configura o `cron`.
-- **backup.sh** - Script que valida a conex\u00e7\u00e3o SSH e executa o `rsync`,
+- **backup.sh** - Script que valida a conex\u00e7\u00e3o SSH, compacta cada subpasta e transfere os arquivos usando `rsync`,
   lendo as vari\u00e1veis definidas em `backup.conf`.
 - **crontab** - Agenda a execu\u00e7\u00e3o di\u00e1ria \u00e0s 3h da manh\u00e3.
 - **docker-compose.yml** - Facilita a cria\u00e7\u00e3o do container e o mapeamento de volumes.
@@ -24,7 +22,7 @@ O backup copia o conteudo de `/data/source` para um servidor remoto configurado 
    docker compose up --build -d
    ```
 
-O container executar\u00e1 diariamente o `backup.sh`, registrando a sa\u00edda no console.
+O container executar\u00e1 diariamente o `backup.sh`, que compacta cada subpasta e envia os arquivos ao destino, registrando a sa\u00edda no console.
 
 ## Personaliza\u00e7\u00e3o
 
