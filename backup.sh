@@ -31,7 +31,7 @@ DEST="${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}"
 BACKUP_KEEP="${BACKUP_KEEP:-0}"
 
 SSH_DIR="/root/.ssh"
-if [ -z "${SSH_KEY_FILE}" ]; then
+if [ -z "${SSH_KEY_FILE:-}" ]; then
   SSH_KEY_FILE=$(find "$SSH_DIR" -maxdepth 1 -type f -name 'id_*' ! -name '*.pub' 2>/dev/null | head -n 1 || true)
 fi
 
