@@ -17,6 +17,8 @@ SOURCE="/data/source"
 
 # Remote user for SSH connections. Defaults to root when not defined.
 REMOTE_USER="${REMOTE_USER:-root}"
+# SSH port for remote connections. Defaults to 22 when not defined.
+SSH_PORT="${SSH_PORT:-22}"
 
 # Ensure required variables are defined.
 : "${REMOTE_HOST:?Missing REMOTE_HOST}"
@@ -41,13 +43,13 @@ if [ ! -f "$SSH_KEY_FILE" ]; then
 fi
 
 printf '%s - Validating SSH connectivity to %s using %s...\n' "$(date)" "$REMOTE_HOST" "$SSH_KEY_FILE"
-if ! ssh -i "$SSH_KEY_FILE" -o BatchMode=yes -o ConnectTimeout=10 "${REMOTE_USER}@${REMOTE_HOST}" true; then
+if ! ssh -p "$SSH_PORT" -i "$SSH_KEY_FILE" -o BatchMode=yes -o ConnectTimeout=10 "${REMOTE_USER}@${REMOTE_HOST}" true; then
   printf '%s - ERROR: Unable to connect to %s via SSH.\n' "$(date)" "$REMOTE_HOST" >&2
   exit 1
 fi
 
 printf '%s - Ensuring remote directory %s exists...\n' "$(date)" "$REMOTE_PATH"
-ssh -i "$SSH_KEY_FILE" "${REMOTE_USER}@${REMOTE_HOST}" "mkdir -p \"${REMOTE_PATH}\""
+ssh -p "$SSH_PORT" -i "$SSH_KEY_FILE" "${REMOTE_USER}@${REMOTE_HOST}" "mkdir -p \"${REMOTE_PATH}\""
 
 TMP_DIR=$(mktemp -d)
 trap 'rm -rf "$TMP_DIR"' EXIT
@@ -59,11 +61,11 @@ for dir in "$SOURCE"/*; do
   printf '%s - Creating archive %s...\n' "$(date)" "$archive"
   tar -czf "$archive" -C "$SOURCE" "$base"
   printf '%s - Transferring %s to %s...\n' "$(date)" "$archive" "$DEST/"
-  rsync -avz -e "ssh -i ${SSH_KEY_FILE}" "$archive" "$DEST/"
+  rsync -avz -e "ssh -p ${SSH_PORT} -i ${SSH_KEY_FILE}" "$archive" "$DEST/"
 
   if [ "$BACKUP_KEEP" -gt 0 ]; then
     printf '%s - Pruning old backups for %s, keeping %s files...\n' "$(date)" "$base" "$BACKUP_KEEP"
-    ssh -i "$SSH_KEY_FILE" "${REMOTE_USER}@${REMOTE_HOST}" \
+    ssh -p "$SSH_PORT" -i "$SSH_KEY_FILE" "${REMOTE_USER}@${REMOTE_HOST}" \
       "cd \"${REMOTE_PATH}\" && ls -1 \"${base}\"_*.tar.gz 2>/dev/null | sort | head -n -${BACKUP_KEEP} | xargs -r rm -f"
   fi
 done

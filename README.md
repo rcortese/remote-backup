@@ -25,7 +25,7 @@ The container will execute `backup.sh` daily, which compresses each subfolder an
 
 ## Customization
 
-Edit `backup.conf` to define the variables `REMOTE_HOST`, `REMOTE_PATH` and optionally `REMOTE_USER`, as well as `BACKUP_KEEP` if you want to change how many archives are retained per subfolder. The default value is `0`, meaning unlimited retention. `REMOTE_USER` defaults to `root` when not set. The values in the repository are examples only. The file is mounted in the container and automatically read by `backup.sh` during each run.
+Edit `backup.conf` to define the variables `REMOTE_HOST`, `REMOTE_PATH` and optionally `REMOTE_USER` and `SSH_PORT`, as well as `BACKUP_KEEP` if you want to change how many archives are retained per subfolder. The default value is `0`, meaning unlimited retention. `REMOTE_USER` defaults to `root` when not set, and `SSH_PORT` defaults to `22`. The values in the repository are examples only. The file is mounted in the container and automatically read by `backup.sh` during each run.
 
 You can also adjust how often the backup runs by setting the `CRON_SCHEDULE` environment variable. The default is `0 3 * * *`, which means daily at 3 a.m. This variable can be changed in `docker-compose.yml` or when starting the container.
 
@@ -36,6 +36,7 @@ The following variables can be defined in `backup.conf` or as environment variab
 - `REMOTE_HOST` – Hostname or IP of the destination server.
 - `REMOTE_PATH` – Target directory on the remote server.
 - `REMOTE_USER` – Remote user used for SSH (default: `root`).
+- `SSH_PORT` – SSH port on the remote server (default: `22`).
 - `BACKUP_KEEP` – Number of archives to keep for each subfolder. Use `0` for unlimited retention.
 - `SSH_KEY_FILE` – Path to the SSH private key to use. If not set, the script searches `/root/.ssh` for the first available key.
 - `CONFIG_FILE` – Path to an alternative configuration file (default: `/config/backup.conf`).
